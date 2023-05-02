@@ -11,7 +11,7 @@
 FlyingCamera::FlyingCamera() : pitch(init_pitch), yaw(init_yaw), near(init_near), fov(init_fov) {}
 
 FlyingCamera::FlyingCamera(glm::vec3 position, float pitch, float yaw, float near, float fov)
-    : init_position(position), init_pitch(pitch), init_yaw(yaw), init_near(near), init_fov(fov), position(position), pitch(pitch), yaw(yaw), near(near), fov(fov) {}
+        : init_position(position), init_pitch(pitch), init_yaw(yaw), init_near(near), init_fov(fov), position(position), pitch(pitch), yaw(yaw), near(near), fov(fov) {}
 
 void FlyingCamera::update(const Window& window, float dt, bool controlsEnabled) {
     if (controlsEnabled) {
@@ -96,12 +96,15 @@ void FlyingCamera::update(const Window& window, float dt, bool controlsEnabled) 
     pitch = clamp(pitch, PITCH_MIN, PITCH_MAX);
 
     view_matrix =
-        glm::rotate(-pitch, glm::vec3{1.0f, 0.0f, 0.0f}) *
-        glm::rotate(-yaw, glm::vec3{0.0f, 1.0f, 0.0f}) *
-        glm::translate(-position);
+            glm::rotate(-pitch, glm::vec3{1.0f, 0.0f, 0.0f}) *
+            glm::rotate(-yaw, glm::vec3{0.0f, 1.0f, 0.0f}) *
+            glm::translate(-position);
     inverse_view_matrix = glm::inverse(view_matrix);
 
-    projection_matrix = glm::infinitePerspective(fov, window.get_framebuffer_aspect_ratio(), 1.0f);
+    ////////////////////////////////////////////////// TASK E //////////////////////////////////////////////////////////
+    projection_matrix = glm::infinitePerspective(fov, window.get_framebuffer_aspect_ratio(), near);
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
     inverse_projection_matrix = glm::inverse(projection_matrix);
 }
 
@@ -148,11 +151,11 @@ void FlyingCamera::add_imgui_options_section(const SceneContext& scene_context) 
 
 CameraProperties FlyingCamera::save_properties() const {
     return CameraProperties{
-        position,
-        yaw,
-        pitch,
-        fov,
-        gamma
+            position,
+            yaw,
+            pitch,
+            fov,
+            gamma
     };
 }
 

@@ -20,35 +20,38 @@ EditorScene::EditorScene::EditorScene() {
 }
 
 void EditorScene::EditorScene::open(const SceneContext& scene_context) {
+    /////////////////////////////////////////////// TASK A /////////////////////////////////////////////////////////////
     /// Setup the camera with the default state
-    camera = std::make_unique<PanningCamera>(init_distance, init_focus_point, init_pitch, init_yaw, init_near, init_fov);
+    camera = std::make_unique<PanningCamera>(/*init_distance, init_focus_point, init_pitch, init_yaw, init_near, init_fov*/);
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
     /// Tell the scene to use this camera to camera the view and projection matrices.
     /// Just calling this once to make sure the initial values are correct.
     render_scene.use_camera(*camera);
 
     /// Create a EditorScene::EntityElement to control the Entity of the default ground plane
     auto plane = std::make_unique<EntityElement>(
-        NullElementRef,
-        "Ground Plane",
-        glm::vec3{0.0f, -0.01f, 0.0f}, // Place it slightly below zero to prevent z fighting with anything placed at y=0
-        glm::vec3{0.0f, 0.0f, 0.0f},
-        glm::vec3{10.0f, 1.0f, 10.0f},
-        EntityRenderer::Entity::create(
-            scene_context.model_loader.load_from_file<EntityRenderer::VertexData>("double_plane.obj"),
-            EntityRenderer::InstanceData{
-                glm::mat4{}, // Set via update_instance_data()
-                EntityRenderer::EntityMaterial{
-                    {1.0f, 1.0f, 1.0f, 1.0f},
-                    {1.0f, 1.0f, 1.0f, 1.0f},
-                    {1.0f, 1.0f, 1.0f, 1.0f},
-                    128.0f,
-                }
-            },
-            EntityRenderer::RenderData{
-                scene_context.texture_loader.default_white_texture(),
-                scene_context.texture_loader.default_white_texture()
-            }
-        )
+            NullElementRef,
+            "Ground Plane",
+            glm::vec3{0.0f, -0.01f, 0.0f}, // Place it slightly below zero to prevent z fighting with anything placed at y=0
+            glm::vec3{0.0f, 0.0f, 0.0f},
+            glm::vec3{10.0f, 1.0f, 10.0f},
+            EntityRenderer::Entity::create(
+                    scene_context.model_loader.load_from_file<EntityRenderer::VertexData>("double_plane.obj"),
+                    EntityRenderer::InstanceData{
+                            glm::mat4{}, // Set via update_instance_data()
+                            EntityRenderer::EntityMaterial{
+                                    {1.0f, 1.0f, 1.0f, 1.0f},
+                                    {1.0f, 1.0f, 1.0f, 1.0f},
+                                    {1.0f, 1.0f, 1.0f, 1.0f},
+                                    128.0f,
+                            }
+                    },
+                    EntityRenderer::RenderData{
+                            scene_context.texture_loader.default_white_texture(),
+                            scene_context.texture_loader.default_white_texture()
+                    }
+            )
     );
 
     /// Update the transform, to propagate the position, rotation, scale, etc.. from the SceneElement to the actual Entity
@@ -62,25 +65,25 @@ void EditorScene::EditorScene::open(const SceneContext& scene_context) {
 
     /// Crate the default point light, which also controls the light sphere
     auto default_light = std::make_unique<PointLightElement>(
-        NullElementRef,
-        "Default Point Light",
-        default_light_pos,
-        PointLight::create(
-            glm::vec3{}, // Set via update_instance_data()
-            glm::vec4{default_light_col, 1.0f}
-        ),
-        EmissiveEntityRenderer::Entity::create(
-            scene_context.model_loader.load_from_file<EntityRenderer::VertexData>("sphere.obj"),
-            EmissiveEntityRenderer::InstanceData{
-                glm::mat4{1.0f}, // Set via update_instance_data()
-                EmissiveEntityRenderer::EmissiveEntityMaterial{
+            NullElementRef,
+            "Default Point Light",
+            default_light_pos,
+            PointLight::create(
+                    glm::vec3{}, // Set via update_instance_data()
                     glm::vec4{default_light_col, 1.0f}
-                }
-            },
-            EmissiveEntityRenderer::RenderData{
-                scene_context.texture_loader.default_white_texture()
-            }
-        )
+            ),
+            EmissiveEntityRenderer::Entity::create(
+                    scene_context.model_loader.load_from_file<EntityRenderer::VertexData>("sphere.obj"),
+                    EmissiveEntityRenderer::InstanceData{
+                            glm::mat4{1.0f}, // Set via update_instance_data()
+                            EmissiveEntityRenderer::EmissiveEntityMaterial{
+                                    glm::vec4{default_light_col, 1.0f}
+                            }
+                    },
+                    EmissiveEntityRenderer::RenderData{
+                            scene_context.texture_loader.default_white_texture()
+                    }
+            )
     );
 
     /// Update the transform, to propagate the position, rotation, scale, etc.. from the SceneElement to the actual Entity
@@ -93,23 +96,23 @@ void EditorScene::EditorScene::open(const SceneContext& scene_context) {
 
     /// All the entity generators, new entity types must be registered here to be able to be created in the UI
     entity_generators = {
-        {EntityElement::ELEMENT_TYPE_NAME,         [](const SceneContext& scene_context, ElementRef parent) { return EntityElement::new_default(scene_context, parent); }},
-        {AnimatedEntityElement::ELEMENT_TYPE_NAME, [](const SceneContext& scene_context, ElementRef parent) { return AnimatedEntityElement::new_default(scene_context, parent); }},
-        {EmissiveEntityElement::ELEMENT_TYPE_NAME, [](const SceneContext& scene_context, ElementRef parent) { return EmissiveEntityElement::new_default(scene_context, parent); }},
+            {EntityElement::ELEMENT_TYPE_NAME,         [](const SceneContext& scene_context, ElementRef parent) { return EntityElement::new_default(scene_context, parent); }},
+            {AnimatedEntityElement::ELEMENT_TYPE_NAME, [](const SceneContext& scene_context, ElementRef parent) { return AnimatedEntityElement::new_default(scene_context, parent); }},
+            {EmissiveEntityElement::ELEMENT_TYPE_NAME, [](const SceneContext& scene_context, ElementRef parent) { return EmissiveEntityElement::new_default(scene_context, parent); }},
     };
 
     /// All the light generators, new light types must be registered here to be able to be created in the UI
     light_generators = {
-        {PointLightElement::ELEMENT_TYPE_NAME, [](const SceneContext& scene_context, ElementRef parent) { return PointLightElement::new_default(scene_context, parent); }},
+            {PointLightElement::ELEMENT_TYPE_NAME, [](const SceneContext& scene_context, ElementRef parent) { return PointLightElement::new_default(scene_context, parent); }},
     };
 
     /// All the element generators, new element types must be registered here to be able to be loaded from json
     json_generators = {
-        {EntityElement::ELEMENT_TYPE_NAME,         [](const SceneContext& scene_context, ElementRef parent, const json& j) { return EntityElement::from_json(scene_context, parent, j); }},
-        {AnimatedEntityElement::ELEMENT_TYPE_NAME, [](const SceneContext& scene_context, ElementRef parent, const json& j) { return AnimatedEntityElement::from_json(scene_context, parent, j); }},
-        {EmissiveEntityElement::ELEMENT_TYPE_NAME, [](const SceneContext& scene_context, ElementRef parent, const json& j) { return EmissiveEntityElement::from_json(scene_context, parent, j); }},
-        {PointLightElement::ELEMENT_TYPE_NAME,     [](const SceneContext& scene_context, ElementRef parent, const json& j) { return PointLightElement::from_json(scene_context, parent, j); }},
-        {GroupElement::ELEMENT_TYPE_NAME,          [](const SceneContext&, ElementRef parent, const json& j) { return GroupElement::from_json(parent, j); }},
+            {EntityElement::ELEMENT_TYPE_NAME,         [](const SceneContext& scene_context, ElementRef parent, const json& j) { return EntityElement::from_json(scene_context, parent, j); }},
+            {AnimatedEntityElement::ELEMENT_TYPE_NAME, [](const SceneContext& scene_context, ElementRef parent, const json& j) { return AnimatedEntityElement::from_json(scene_context, parent, j); }},
+            {EmissiveEntityElement::ELEMENT_TYPE_NAME, [](const SceneContext& scene_context, ElementRef parent, const json& j) { return EmissiveEntityElement::from_json(scene_context, parent, j); }},
+            {PointLightElement::ELEMENT_TYPE_NAME,     [](const SceneContext& scene_context, ElementRef parent, const json& j) { return PointLightElement::from_json(scene_context, parent, j); }},
+            {GroupElement::ELEMENT_TYPE_NAME,          [](const SceneContext&, ElementRef parent, const json& j) { return GroupElement::from_json(parent, j); }},
     };
 }
 
@@ -175,14 +178,17 @@ void EditorScene::EditorScene::close(const SceneContext& /*scene_context*/) {
 void EditorScene::EditorScene::set_camera_mode(CameraMode new_camera_mode) {
     /// Extract the camera orientation and use that to switch cameras
     auto orientation = camera->save_properties();
+
+    ////////////////////////////////////////////////// TASK A //////////////////////////////////////////////////////////
     switch (new_camera_mode) {
         case CameraMode::Panning:
-            camera = std::make_unique<PanningCamera>(init_distance, init_focus_point, init_pitch, init_yaw, init_near, init_fov);
+            camera = std::make_unique<PanningCamera>(/*init_distance, init_focus_point, init_pitch, init_yaw, init_near, init_fov*/);
             break;
         case CameraMode::Flying:
-            camera = std::make_unique<FlyingCamera>(init_position, init_pitch, init_yaw, init_near, init_fov);
+            camera = std::make_unique<FlyingCamera>(/*init_position, init_pitch, init_yaw, init_near, init_fov*/);
             break;
     }
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     camera->load_properties(orientation);
     this->camera_mode = new_camera_mode;
 }
@@ -297,8 +303,8 @@ void EditorScene::EditorScene::add_imgui_scene_hierarchy(const SceneContext& sce
         /// Add a button to create a new special group SceneElement, which allows you to group multiple SceneElements
         if (ImGui::Button("New Group")) {
             auto new_group = std::make_unique<GroupElement>(
-                parent,
-                "New Group"
+                    parent,
+                    "New Group"
             );
 
             new_group->update_instance_data();
@@ -588,7 +594,7 @@ void EditorScene::EditorScene::save_to_json_file() {
 void EditorScene::EditorScene::load_from_json_file(const SceneContext& scene_context) {
     const auto init_path = (std::filesystem::current_path() / "scene.json").string();
 
-#ifndef __APPLE__
+#ifdef __APPLE__
     // Apparently the file filter doesn't work properly on Mac?
     // Feel free to re-enable if you want to try it, but I have disabled it on Mac for now.
 

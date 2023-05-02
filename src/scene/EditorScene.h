@@ -19,6 +19,8 @@ namespace EditorScene {
         ElementList scene_root;
         ElementRef selected_element;
 
+        ////////////////////////////////////////////////// TASK A //////////////////////////////////////////////////////////
+        /*
         /// The initial camera settings, which is where the camera will be reset to when pressing (R)
         const float init_distance = 8.0f;
         const glm::vec3 init_focus_point = {0.0f, 0.0f, 0.0f};
@@ -27,6 +29,8 @@ namespace EditorScene {
         const float init_yaw = glm::radians(-45.0f);
         const float init_near = 0.01f;
         const float init_fov = glm::radians(90.0f);
+         */
+        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
         /// The two supported camera modes
         enum class CameraMode {

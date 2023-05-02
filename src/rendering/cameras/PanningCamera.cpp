@@ -10,7 +10,7 @@
 PanningCamera::PanningCamera() : distance(init_distance), focus_point(init_focus_point), pitch(init_pitch), yaw(init_yaw), near(init_near), fov(init_fov) {}
 
 PanningCamera::PanningCamera(float distance, glm::vec3 focus_point, float pitch, float yaw, float near, float fov)
-    : init_distance(distance), init_focus_point(focus_point), init_pitch(pitch), init_yaw(yaw), init_near(near), init_fov(fov), distance(distance), focus_point(focus_point), pitch(pitch), yaw(yaw), near(near), fov(fov) {}
+        : init_distance(distance), init_focus_point(focus_point), init_pitch(pitch), init_yaw(yaw), init_near(near), init_fov(fov), distance(distance), focus_point(focus_point), pitch(pitch), yaw(yaw), near(near), fov(fov) {}
 
 void PanningCamera::update(const Window& window, float dt, bool controls_enabled) {
     if (controls_enabled) {
@@ -45,10 +45,20 @@ void PanningCamera::update(const Window& window, float dt, bool controls_enabled
     pitch = clamp(pitch, PITCH_MIN, PITCH_MAX);
     distance = clamp(distance, MIN_DISTANCE, MAX_DISTANCE);
 
-    view_matrix = glm::translate(glm::vec3{0.0f, 0.0f, -distance});
+    ////////////////////////////////////////////////// TASK A //////////////////////////////////////////////////////////
+    view_matrix =
+            glm::rotate(-pitch, glm::vec3{1.0f, 0.0f, 0.0f}) *
+            glm::rotate(-yaw, glm::vec3{0.0f, 1.0f, 0.0f}) *
+            glm::translate(glm::vec3{0.0f, 0.0f, -distance}) *
+            glm::translate(-focus_point);
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
     inverse_view_matrix = glm::inverse(view_matrix);
 
-    projection_matrix = glm::infinitePerspective(fov, window.get_framebuffer_aspect_ratio(), 1.0f);
+    ////////////////////////////////////////////////// TASK E //////////////////////////////////////////////////////////
+    projection_matrix = glm::infinitePerspective(fov, window.get_framebuffer_aspect_ratio(), near);
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
     inverse_projection_matrix = glm::inverse(projection_matrix);
 }
 
@@ -98,11 +108,11 @@ void PanningCamera::add_imgui_options_section(const SceneContext& scene_context)
 
 CameraProperties PanningCamera::save_properties() const {
     return CameraProperties{
-        get_position(),
-        yaw,
-        pitch,
-        fov,
-        gamma
+            get_position(),
+            yaw,
+            pitch,
+            fov,
+            gamma
     };
 }
 

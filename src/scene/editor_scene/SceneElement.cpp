@@ -93,9 +93,15 @@ void EditorScene::LocalTransformComponent::add_local_transform_imgui_edit_sectio
     }
 }
 
+////////////////////////////////////////////////// TASK B //////////////////////////////////////////////////////////
 glm::mat4 EditorScene::LocalTransformComponent::calc_model_matrix() const {
-    return glm::translate(position) * glm::scale(scale);
+    glm::mat4 rotationX = glm::rotate(euler_rotation.x, glm::vec3(1, 0, 0));
+    glm::mat4 rotationY = glm::rotate(euler_rotation.y, glm::vec3(0, 1, 0));
+    glm::mat4 rotationZ = glm::rotate(euler_rotation.z, glm::vec3(0, 0, 1));
+    glm::mat4 rotationMatrix = rotationZ * rotationY * rotationX;
+    return glm::translate(position) * rotationMatrix * glm::scale(scale);
 }
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void EditorScene::LocalTransformComponent::update_local_transform_from_json(const json& json) {
     auto t = json["local_transform"];
@@ -112,12 +118,33 @@ json EditorScene::LocalTransformComponent::local_transform_into_json() const {
     }};
 }
 
-void EditorScene::LitMaterialComponent::add_material_imgui_edit_section(MasterRenderScene& /*render_scene*/, const SceneContext& /*scene_context*/) {
+////////////////////////////////////////////////// TASK C //////////////////////////////////////////////////////////
+void EditorScene::LitMaterialComponent::add_material_imgui_edit_section(MasterRenderScene& render_scene, const SceneContext& scene_context) {
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // Set this to true if the user has changed any of the material values, otherwise the changes won't be propagated
     bool material_changed = false;
     ImGui::Text("Material");
 
     // Add UI controls here
+    ////////////////////////////////////////////////// TASK D //////////////////////////////////////////////////////////
+    material_changed |= ImGui::ColorEdit3("Diffuse Tint", &material.diffuse_tint[0]);
+    material_changed |= ImGui::DragFloat("Diffuse Factor", &material.diffuse_tint.a, 0.1f, 0.0f, FLT_MAX);
+    ImGui::DragDisableCursor(scene_context.window);
+
+    material_changed |= ImGui::ColorEdit3("Specular Tint", &material.specular_tint[0]);
+    material_changed |= ImGui::DragFloat("Specular Factor", &material.specular_tint.a, 0.1f, 0.0f, FLT_MAX);
+    ImGui::DragDisableCursor(scene_context.window);
+
+    material_changed |= ImGui::ColorEdit3("Ambient Tint", &material.ambient_tint[0]);
+    material_changed |= ImGui::DragFloat("Ambient Factor", &material.ambient_tint.a, 0.1f, 0.0f, FLT_MAX);
+    ImGui::DragDisableCursor(scene_context.window);
+
+    material_changed |= ImGui::DragFloat("Shininess", &material.shininess, 1.0f, 0.0f, FLT_MAX);
+    ImGui::DragDisableCursor(scene_context.window);
+    ////////////////////////////////////////////////// TASK C //////////////////////////////////////////////////////////
+    material_changed |= ImGui::DragFloat("Texture Scale", &material.texture_scale, 0.1f, 0.0f, FLT_MAX);
+    ImGui::DragDisableCursor(scene_context.window);
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     ImGui::Spacing();
     if (material_changed) {
@@ -131,6 +158,9 @@ void EditorScene::LitMaterialComponent::update_material_from_json(const json& js
     material.specular_tint = m["specular_tint"];
     material.ambient_tint = m["ambient_tint"];
     material.shininess = m["shininess"];
+    ////////////////////////////////////////////////// TASK C //////////////////////////////////////////////////////////
+    material.texture_scale = m["texture_scale"];
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 }
 
 json EditorScene::LitMaterialComponent::material_into_json() const {
@@ -139,15 +169,28 @@ json EditorScene::LitMaterialComponent::material_into_json() const {
         {"specular_tint", material.specular_tint},
         {"ambient_tint", material.ambient_tint},
         {"shininess", material.shininess},
+        ////////////////////////////////////////////////// TASK C //////////////////////////////////////////////////////////
+        {"texture_scale", material.texture_scale}
+        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     }};
 }
 
-void EditorScene::EmissiveMaterialComponent::add_emissive_material_imgui_edit_section(MasterRenderScene& /*render_scene*/, const SceneContext& /*scene_context*/) {
+////////////////////////////////////////////////// TASK C //////////////////////////////////////////////////////////
+void EditorScene::EmissiveMaterialComponent::add_emissive_material_imgui_edit_section(MasterRenderScene& render_scene, const SceneContext& scene_context) {
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // Set this to true if the user has changed any of the material values, otherwise the changes won't be propagated
     bool material_changed = false;
     ImGui::Text("Emissive Material");
 
     // Add UI controls here
+    ////////////////////////////////////////////////// TASK C //////////////////////////////////////////////////////////
+    material_changed |= ImGui::DragFloat("Texture Scale", &material.texture_scale, 0.1f, 0.0f, FLT_MAX);
+    ImGui::DragDisableCursor(scene_context.window);
+    ////////////////////////////////////////////////// TASK D //////////////////////////////////////////////////////////
+    material_changed |= ImGui::ColorEdit3("Emissive Tint", &material.emission_tint[0]);
+    material_changed |= ImGui::DragFloat("Emissive Factor", &material.emission_tint.a, 0.1f, 0.0f, 1.0f);
+    ImGui::DragDisableCursor(scene_context.window);
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     ImGui::Spacing();
     if (material_changed) {
@@ -158,11 +201,17 @@ void EditorScene::EmissiveMaterialComponent::add_emissive_material_imgui_edit_se
 void EditorScene::EmissiveMaterialComponent::update_emissive_material_from_json(const json& json) {
     auto m = json["material"];
     material.emission_tint = m["emission_tint"];
+    ////////////////////////////////////////////////// TASK C //////////////////////////////////////////////////////////
+    material.texture_scale = m["texture_scale"];
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 }
 
 json EditorScene::EmissiveMaterialComponent::emissive_material_into_json() const {
     return {"material", {
         {"emission_tint", material.emission_tint},
+        ////////////////////////////////////////////////// TASK C //////////////////////////////////////////////////////////
+        {"texture_scale", material.texture_scale}
+        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     }};
 }
 
