@@ -6,6 +6,18 @@ std::vector<PointLight> LightScene::get_nearest_point_lights(glm::vec3 target, s
     return get_nearest_lights(point_lights, target, max_count, min_count);
 }
 
+////////////////////////////////////////////////// TASK H //////////////////////////////////////////////////////////
+std::vector<DirectionalLight> LightScene::get_directional_lights(size_t max_count) const {
+    std::vector<DirectionalLight> lights;
+    lights.reserve(max_count);
+    auto iter = directional_lights.begin();
+    for (size_t i = 0; i < max_count && iter != directional_lights.end(); ++i, ++iter) {
+        lights.push_back(**iter);
+    }
+    return lights;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 template<typename Light>
 std::vector<Light> LightScene::get_nearest_lights(const std::unordered_set<std::shared_ptr<Light>>& lights, glm::vec3 target, size_t max_count, size_t min_count) {
     if (lights.size() <= max_count) {

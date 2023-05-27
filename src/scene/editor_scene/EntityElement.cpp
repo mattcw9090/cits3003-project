@@ -2,6 +2,9 @@
 
 #include "rendering/imgui/ImGuiManager.h"
 #include "scene/SceneContext.h"
+/////////////////////////////////////////////// TASK I /////////////////////////////////////////////////////////////////
+#include <tinyfiledialogs/tinyfiledialogs.h>
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 std::unique_ptr<EditorScene::EntityElement> EditorScene::EntityElement::new_default(const SceneContext& scene_context, ElementRef parent) {
     auto rendered_entity = EntityRenderer::Entity::create(
@@ -76,6 +79,87 @@ void EditorScene::EntityElement::add_imgui_edit_section(MasterRenderScene& rende
     scene_context.texture_loader.add_imgui_texture_selector("Diffuse Texture", rendered_entity->render_data.diffuse_texture);
     scene_context.texture_loader.add_imgui_texture_selector("Specular Map", rendered_entity->render_data.specular_map_texture, false);
     ImGui::Spacing();
+
+    /////////////////////////////////////////////// TASK I /////////////////////////////////////////////////////////////
+    // Add a button for model upload
+    if (ImGui::Button("Upload Model")) {
+        const char* filter = "*.model"; // Replace with your model file extension
+        const auto init_path = (std::filesystem::current_path() / "models").string(); // Default model directory
+
+#ifdef __APPLE__
+        // Apparently the file filter doesn't work properly on Mac?
+        // Feel free to re-enable if you want to try it, but I have disabled it on Mac for now.
+
+        const char* path = tinyfd_openFileDialog("Open Model", init_path.c_str(), 0, nullptr, nullptr, false);
+#else
+        const char* path = tinyfd_openFileDialog("Open Model", init_path.c_str(), 1, &filter, "Model Files", false);
+#endif
+
+        if (path != nullptr) {
+            try {
+                // Add to res/models directory
+                std::filesystem::path source_path(path);
+                std::filesystem::path target_path = std::filesystem::current_path() / "res/models" / source_path.filename();
+
+                // Copy the file
+                std::filesystem::copy(source_path, target_path, std::filesystem::copy_options::overwrite_existing);
+
+                // Extract the filename of the model
+                std::string model_file_name = source_path.filename().string();
+
+                // Load the model directly after upload
+                auto model = scene_context.model_loader.load_from_file<EntityRenderer::VertexData>(model_file_name);
+                // Assign the model to the rendered_entity
+                rendered_entity->model = model;
+                std::cout << "Model loaded successfully." << std::endl;
+
+            } catch (const std::exception& e) {
+                std::cerr << "Error while trying to add model file:" << std::endl;
+                std::cerr << e.what() << std::endl;
+            }
+        }
+    }
+
+    // Add a button for texture map upload
+    if (ImGui::Button("Upload Texture Map")) {
+        const char* filter = "*.png";
+        const auto init_path = (std::filesystem::current_path() / "textures").string(); // Default model directory
+
+#ifdef __APPLE__
+        // Apparently the file filter doesn't work properly on Mac?
+        // Feel free to re-enable if you want to try it, but I have disabled it on Mac for now.
+
+        const char* path = tinyfd_openFileDialog("Open Texture Map", init_path.c_str(), 0, nullptr, nullptr, false);
+#else
+        const char* path = tinyfd_openFileDialog("Open Texture Map", init_path.c_str(), 1, &filter, "Texture Files", false);
+#endif
+
+        if (path != nullptr) {
+            try {
+                // Add to res/textures directory
+                std::filesystem::path source_path(path);
+                std::filesystem::path target_path = std::filesystem::current_path() / "res/textures" / source_path.filename();
+
+                // Copy the file
+                std::filesystem::copy(source_path, target_path, std::filesystem::copy_options::overwrite_existing);
+
+                // Extract the filename of the texture
+                std::string texture_file_name = source_path.filename().string();
+
+                // Load the model directly after upload
+                auto texture = scene_context.texture_loader.load_from_file(texture_file_name, false, false);
+
+                // Assign the model to the rendered_entity
+                rendered_entity->render_data.diffuse_texture = texture;
+                std::cout << "Texture loaded successfully." << std::endl;
+
+            } catch (const std::exception& e) {
+                std::cerr << "Error while trying to add texture map:" << std::endl;
+                std::cerr << e.what() << std::endl;
+            }
+        }
+    }
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 }
 
 void EditorScene::EntityElement::update_instance_data() {
