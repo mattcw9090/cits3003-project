@@ -83,8 +83,8 @@ void EditorScene::EntityElement::add_imgui_edit_section(MasterRenderScene& rende
     /////////////////////////////////////////////// TASK I /////////////////////////////////////////////////////////////
     // Add a button for model upload
     if (ImGui::Button("Upload Model")) {
-        const char* filter = "*.model"; // Replace with your model file extension
-        const auto init_path = (std::filesystem::current_path() / "models").string(); // Default model directory
+        const char* filter = "*.model";
+        const auto init_path = (std::filesystem::current_path() / "models").string();
 
 #ifdef __APPLE__
         // Apparently the file filter doesn't work properly on Mac?
@@ -123,7 +123,7 @@ void EditorScene::EntityElement::add_imgui_edit_section(MasterRenderScene& rende
     // Add a button for texture map upload
     if (ImGui::Button("Upload Texture Map")) {
         const char* filter = "*.png";
-        const auto init_path = (std::filesystem::current_path() / "textures").string(); // Default model directory
+        const auto init_path = (std::filesystem::current_path() / "textures").string();
 
 #ifdef __APPLE__
         // Apparently the file filter doesn't work properly on Mac?
